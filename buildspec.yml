@@ -1,5 +1,8 @@
 version: 0.2
 
+env:
+  image: aws/codebuild/standard:7.0  # Modern image supporting runtime-versions
+
 phases:
   install:
     runtime-versions:
@@ -14,7 +17,7 @@ phases:
       - echo Adding uv to PATH...
       - export PATH=/root/.local/bin:$PATH
       - echo Creating venv...
-      - uv venv
+      - uv venv --python python3.12
       - echo Activating venv...
       - source .venv/bin/activate
       - echo Installing dependencies...
