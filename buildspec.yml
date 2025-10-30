@@ -5,6 +5,7 @@ env:
   variables:
     ECR_REGISTRY: "593793061891.dkr.ecr.us-east-1.amazonaws.com/mlops-project"  # Your account ID and repo name"
     AWS_DEFAULT_REGION: "us-east-1"
+    STAGING_URL: "https://httpbin.org"
 
 phases:
   install:
@@ -43,4 +44,7 @@ phases:
       - echo Pushing latest tag...
       - docker tag $ECR_REGISTRY:$CODEBUILD_RESOLVED_SOURCE_VERSION $ECR_REGISTRY:latest
       - docker push $ECR_REGISTRY:latest
+      - echo Running Locust load test...
+      - uv run make load-test
+      - echo Load test completed!
       - echo Build completed!

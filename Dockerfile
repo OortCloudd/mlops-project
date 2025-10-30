@@ -23,3 +23,4 @@ COPY . .
 
 # Default command: Run your app or tests
 CMD ["uv", "run", "make", "all"]
+
