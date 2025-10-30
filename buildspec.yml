@@ -2,11 +2,15 @@ version: 0.2
 
 env:
   image: aws/codebuild/standard:7.0  # Modern image supporting runtime-versions
+  variables:
+    ECR_REGISTRY: "593793061891.dkr.ecr.us-east-1.amazonaws.com/mlops-project"  # Your account ID and repo name"
+    AWS_DEFAULT_REGION: "us-east-1"
 
 phases:
   install:
     runtime-versions:
       python: 3.12
+      docker: 20
     commands:
       - echo Installing SQLite dependencies...
       - yum install -y sqlite-devel  # Install SQLite development libraries
@@ -22,10 +26,21 @@ phases:
       - source .venv/bin/activate
       - echo Installing dependencies...
       - uv pip install -r requirements.txt
+  pre_build:
+    commands:
+      - echo Logging into ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
   build:
     commands:
       - echo Building the project...
       - uv run make all
+      - echo Building Docker image...
+      - docker build -t $ECR_REGISTRY:$CODEBUILD_RESOLVED_SOURCE_VERSION .
   post_build:
     commands:
+      - echo Pushing Docker image to ECR...
+      - docker push $ECR_REGISTRY:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo Pushing latest tag...
+      - docker tag $ECR_REGISTRY:$CODEBUILD_RESOLVED_SOURCE_VERSION $ECR_REGISTRY:latest
+      - docker push $ECR_REGISTRY:latest
       - echo Build completed!
