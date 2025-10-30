@@ -22,4 +22,4 @@ pytokens==0.2.0
 ruff==0.14.2
 tomlkit==0.13.3
 locust>=2.20
-numpy
+numpy==1.26.4
